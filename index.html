@@ -495,10 +495,11 @@
 <script type="module">
   import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk'
   const callReady = async () => { try { await sdk.actions.ready() } catch (e) {} }
+  const invokeAfterPaint = () => requestAnimationFrame(callReady)
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    callReady()
+    invokeAfterPaint()
   } else {
-    window.addEventListener('DOMContentLoaded', callReady)
+    window.addEventListener('DOMContentLoaded', invokeAfterPaint)
   }
 </script>
 
