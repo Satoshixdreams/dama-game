@@ -126,6 +126,7 @@ app.get('/miniapp.json', (req, res) => {
       noindex: true
     }
   }
+  res.set('Cache-Control', 'no-store')
   res.json(config)
 })
 
@@ -159,6 +160,7 @@ app.get('/farcaster.json', (req, res) => {
       noindex: true
     }
   }
+  res.set('Cache-Control', 'no-store')
   res.json(config)
 })
 
@@ -196,6 +198,7 @@ app.get('/.well-known/farcaster.json', (req, res) => {
       noindex: true
     }
   }
+  res.set('Cache-Control', 'no-store')
   res.json(config)
 })
 
