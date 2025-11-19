@@ -15,6 +15,12 @@ async function testConnection() {
   return true;
 }
 
+function rootUrl(req) {
+  const proto = (req.headers['x-forwarded-proto'] || 'http').split(',')[0];
+  const host = req.headers['x-forwarded-host'] || req.get('host');
+  return process.env.ROOT_URL || `${proto}://${host}`;
+}
+
 // API Routes
 app.get('/', (req, res) => {
   res.redirect('/game')
@@ -33,7 +39,7 @@ app.get('/game', (req, res) => {
 })
 
 app.get('/miniapp.json', (req, res) => {
-  const ROOT_URL = process.env.ROOT_URL || `http://localhost:${process.env.PORT || 3001}`
+  const ROOT_URL = rootUrl(req)
   const config = {
     accountAssociation: {
       header: process.env.ACCOUNT_HEADER || "",
@@ -66,7 +72,7 @@ app.get('/miniapp.json', (req, res) => {
 })
 
 app.get('/farcaster.json', (req, res) => {
-  const ROOT_URL = process.env.ROOT_URL || `http://localhost:${process.env.PORT || 3001}`
+  const ROOT_URL = rootUrl(req)
   const config = {
     accountAssociation: {
       header: process.env.ACCOUNT_HEADER || "",
@@ -103,7 +109,7 @@ app.get('/.well-known/farcaster.json', (req, res) => {
   if (hosted && hosted.startsWith('http')) {
     return res.redirect(307, hosted)
   }
-  const ROOT_URL = process.env.ROOT_URL || `http://localhost:${process.env.PORT || 3001}`
+  const ROOT_URL = rootUrl(req)
   const config = {
     accountAssociation: {
       header: process.env.ACCOUNT_HEADER || "",
