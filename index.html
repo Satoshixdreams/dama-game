@@ -494,11 +494,12 @@
 
 <script type="module">
   import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk'
-  window.addEventListener('load', async () => {
-    try {
-      await sdk.actions.ready()
-    } catch (e) {}
-  })
+  const callReady = async () => { try { await sdk.actions.ready() } catch (e) {} }
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    callReady()
+  } else {
+    window.addEventListener('DOMContentLoaded', callReady)
+  }
 </script>
 
 </body>
