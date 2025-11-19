@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const path = require('path');
+const zlib = require('zlib');
 // Offline mode: no blockchain formatting needed
 
 // Middleware
@@ -19,6 +20,45 @@ function rootUrl(req) {
   const proto = (req.headers['x-forwarded-proto'] || 'http').split(',')[0];
   const host = req.headers['x-forwarded-host'] || req.get('host');
   return process.env.ROOT_URL || `${proto}://${host}`;
+}
+
+function crc32(buf) {
+  let c = ~0;
+  for (let i = 0; i < buf.length; i++) {
+    c ^= buf[i];
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+  }
+  c = ~c;
+  const out = Buffer.allocUnsafe(4);
+  out.writeUInt32BE(c >>> 0, 0);
+  return out;
+}
+
+function pngChunk(type, data) {
+  const t = Buffer.from(type, 'ascii');
+  const len = Buffer.allocUnsafe(4); len.writeUInt32BE(data.length, 0);
+  const crc = crc32(Buffer.concat([t, data]));
+  return Buffer.concat([len, t, data, crc]);
+}
+
+function generatePng(width, height, r, g, b) {
+  const ihdr = Buffer.allocUnsafe(13);
+  ihdr.writeUInt32BE(width, 0);
+  ihdr.writeUInt32BE(height, 4);
+  ihdr.writeUInt8(8, 8);
+  ihdr.writeUInt8(2, 9);
+  ihdr.writeUInt8(0, 10);
+  ihdr.writeUInt8(0, 11);
+  ihdr.writeUInt8(0, 12);
+  const sig = Buffer.from([137,80,78,71,13,10,26,10]);
+  const line = Buffer.allocUnsafe(1 + width * 3);
+  line[0] = 0;
+  for (let i = 1; i < line.length; i += 3) { line[i] = r; line[i+1] = g; line[i+2] = b; }
+  const raw = Buffer.allocUnsafe((1 + width * 3) * height);
+  for (let y = 0; y < height; y++) line.copy(raw, y * line.length);
+  const idat = zlib.deflateSync(raw);
+  const chunks = [pngChunk('IHDR', ihdr), pngChunk('IDAT', idat), pngChunk('IEND', Buffer.alloc(0))];
+  return Buffer.concat([sig, ...chunks]);
 }
 
 // API Routes
@@ -38,6 +78,24 @@ app.get('/game', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'))
 })
 
+app.get('/icon.png', (req, res) => {
+  const png = generatePng(1024, 1024, 20, 12, 12);
+  res.set('Content-Type', 'image/png');
+  res.send(png);
+})
+
+app.get('/splash.png', (req, res) => {
+  const png = generatePng(1200, 630, 32, 24, 24);
+  res.set('Content-Type', 'image/png');
+  res.send(png);
+})
+
+app.get('/image.png', (req, res) => {
+  const png = generatePng(1200, 630, 32, 24, 24);
+  res.set('Content-Type', 'image/png');
+  res.send(png);
+})
+
 app.get('/miniapp.json', (req, res) => {
   const ROOT_URL = rootUrl(req)
   const config = {
@@ -53,18 +111,18 @@ app.get('/miniapp.json', (req, res) => {
       subtitle: "Turkish Draughts",
       description: "Play Turkish Draughts with AI or PvP",
       screenshotUrls: [`${ROOT_URL}/screenshot-portrait.svg`],
-      iconUrl: `${ROOT_URL}/icon.svg`,
-      splashImageUrl: `${ROOT_URL}/hero.svg`,
+      iconUrl: `${ROOT_URL}/icon.png`,
+      splashImageUrl: `${ROOT_URL}/splash.png`,
       splashBackgroundColor: "#000000",
       homeUrl: `${ROOT_URL}/game`,
       webhookUrl: `${ROOT_URL}/api/webhook`,
       primaryCategory: "games",
       tags: ["draughts", "checkers", "board", "ai"],
-      heroImageUrl: `${ROOT_URL}/hero.svg`,
+      heroImageUrl: `${ROOT_URL}/image.png`,
       tagline: "Play and strategize",
       ogTitle: "Dama – Turkish Draughts",
       ogDescription: "Classic Turkish Draughts with AI",
-      ogImageUrl: `${ROOT_URL}/hero.svg`,
+      ogImageUrl: `${ROOT_URL}/image.png`,
       noindex: true
     }
   }
@@ -84,8 +142,8 @@ app.get('/farcaster.json', (req, res) => {
       version: "1",
       name: "Dama",
       homeUrl: `${ROOT_URL}/game`,
-      iconUrl: `${ROOT_URL}/icon.svg`,
-      splashImageUrl: `${ROOT_URL}/hero.svg`,
+      iconUrl: `${ROOT_URL}/icon.png`,
+      splashImageUrl: `${ROOT_URL}/splash.png`,
       splashBackgroundColor: "#000000",
       webhookUrl: `${ROOT_URL}/api/webhook`,
       subtitle: "Turkish Draughts",
@@ -93,11 +151,11 @@ app.get('/farcaster.json', (req, res) => {
       screenshotUrls: [`${ROOT_URL}/screenshot-portrait.svg`],
       primaryCategory: "games",
       tags: ["draughts", "checkers", "board", "ai"],
-      heroImageUrl: `${ROOT_URL}/hero.svg`,
+      heroImageUrl: `${ROOT_URL}/image.png`,
       tagline: "Play and strategize",
       ogTitle: "Dama – Turkish Draughts",
       ogDescription: "Classic Turkish Draughts with AI",
-      ogImageUrl: `${ROOT_URL}/hero.svg`,
+      ogImageUrl: `${ROOT_URL}/image.png`,
       noindex: true
     }
   }
@@ -121,8 +179,8 @@ app.get('/.well-known/farcaster.json', (req, res) => {
       version: "1",
       name: "Dama",
       homeUrl: `${ROOT_URL}/game`,
-      iconUrl: `${ROOT_URL}/icon.svg`,
-      splashImageUrl: `${ROOT_URL}/hero.svg`,
+      iconUrl: `${ROOT_URL}/icon.png`,
+      splashImageUrl: `${ROOT_URL}/splash.png`,
       splashBackgroundColor: "#000000",
       webhookUrl: `${ROOT_URL}/api/webhook`,
       subtitle: "Turkish Draughts",
@@ -130,11 +188,11 @@ app.get('/.well-known/farcaster.json', (req, res) => {
       screenshotUrls: [`${ROOT_URL}/screenshot-portrait.svg`],
       primaryCategory: "games",
       tags: ["draughts", "checkers", "board", "ai"],
-      heroImageUrl: `${ROOT_URL}/hero.svg`,
+      heroImageUrl: `${ROOT_URL}/image.png`,
       tagline: "Play and strategize",
       ogTitle: "Dama – Turkish Draughts",
       ogDescription: "Classic Turkish Draughts with AI",
-      ogImageUrl: `${ROOT_URL}/hero.svg`,
+      ogImageUrl: `${ROOT_URL}/image.png`,
       noindex: true
     }
   }
