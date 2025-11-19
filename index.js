@@ -1,49 +1,23 @@
 require('dotenv').config();
 const express = require('express');
-const Web3 = require('web3');
-const cors = require('cors'); // Import CORS
+const cors = require('cors');
 const app = express();
-const contractUtils = require('./utils/contract');
+const path = require('path');
+// Offline mode: no blockchain formatting needed
 
 // Middleware
 app.use(express.json());
 app.use(cors()); // Enable CORS for all routes
 
-// Test connection to Monad Testnet
 async function testConnection() {
-  try {
-    // Try different methods to test connection
-    try {
-      // First try getting the block number
-      const blockNumber = await contractUtils.web3.eth.getBlockNumber();
-      console.log(`Connected to Monad Testnet. Current block: ${blockNumber}`);
-      return true;
-    } catch (innerError) {
-      // If that fails, try a different method
-      try {
-        const accounts = await contractUtils.web3.eth.getAccounts();
-        console.log(`Connected to Monad Testnet. Found ${accounts.length} accounts.`);
-        return true;
-      } catch (accountError) {
-        // If that also fails, try a simple web3 isConnected check
-        if (contractUtils.web3.eth.net.isListening()) {
-          console.log('Connected to Monad Testnet via isListening check.');
-          return true;
-        }
-        throw new Error('All connection methods failed');
-      }
-    }
-  } catch (error) {
-    console.error('Failed to connect to Monad Testnet:', error.message);
-    console.log('API will continue running without blockchain connectivity.');
-    return false;
-  }
+  console.log('Offline mode: blockchain connectivity disabled.');
+  return true;
 }
 
 // API Routes
 app.get('/', (req, res) => {
   console.log('Root endpoint accessed');
-  res.json({ message: 'BTM API is running' });
+  res.json({ message: 'Game API is running' });
 });
 
 // Health check endpoint
@@ -52,106 +26,13 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Add BTM token info endpoint
-app.get('/token-info', async (req, res) => {
-  try {
-    // Get token info from blockchain
-    const [name, symbol, decimals, totalSupply] = await Promise.all([
-      contractUtils.getTokenName(),
-      contractUtils.getTokenSymbol(),
-      contractUtils.getTokenDecimals(),
-      contractUtils.getTokenTotalSupply()
-    ]);
-    
-    const tokenInfo = {
-      name,
-      symbol,
-      type: "ERC20",
-      contractAddress: "0x59d6d0ADB836Ed25a3E7921ded05BF1997E82b8d",
-      decimals,
-      totalSupply
-    };
-    res.json(tokenInfo);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Token and balance endpoints removed (offline mode)
 
-// Add symbol endpoint
-app.get('/symbol', async (req, res) => {
-  console.log('Symbol endpoint accessed');
-  try {
-    const symbol = await contractUtils.getTokenSymbol();
-    res.json({ symbol });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+app.get('/game', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'))
+})
 
-// Add totalSupply endpoint
-app.get('/totalSupply', async (req, res) => {
-  console.log('Total supply endpoint accessed');
-  try {
-    const totalSupply = await contractUtils.getTokenTotalSupply();
-    res.json({ totalSupply });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Add balance endpoint (with query parameter)
-app.get('/balance', async (req, res) => {
-  console.log('Balance endpoint accessed');
-  try {
-    // Get address from query parameter
-    const address = req.query.address;
-    
-    if (!address) {
-      return res.status(400).json({ error: "Address parameter is required" });
-    }
-    
-    console.log(`Fetching balance for address: ${address}`);
-    
-    const balance = await contractUtils.getTokenBalance(address);
-    const decimals = await contractUtils.getTokenDecimals();
-    
-    // Format the balance with decimals
-    const formattedBalance = contractUtils.web3.utils.fromWei(balance, 'ether');
-    
-    res.json({ 
-      address,
-      balance,
-      formattedBalance: `${formattedBalance} BTM`
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Add a new endpoint that accepts address as a path parameter
-app.get('/balance/:address', async (req, res) => {
-  console.log('Balance endpoint accessed with path parameter');
-  try {
-    // Get address from path parameter
-    const address = req.params.address;
-    
-    console.log(`Fetching balance for address: ${address}`);
-    
-    const balance = await contractUtils.getTokenBalance(address);
-    const decimals = await contractUtils.getTokenDecimals();
-    
-    // Format the balance with decimals
-    const formattedBalance = contractUtils.web3.utils.fromWei(balance, 'ether');
-    
-    res.json({ 
-      address,
-      balance,
-      formattedBalance: `${formattedBalance} BTM`
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Removed blockchain-related routes: /token-info, /symbol, /totalSupply, /balance
 
 // Remove the first claim-rewards endpoint (around line 150-200)
 // and keep only the one that uses the playerPointsDB
@@ -167,18 +48,10 @@ app.post('/add-points', async (req, res) => {
     const { playerAddress, pointsToAdd } = req.body;
     
     if (!playerAddress || !pointsToAdd) {
-      return res.status(400).json({ 
-        success: false, 
-        error: "Player address and points are required" 
-      });
+      return res.status(400).json({ success: false, error: "Player id and points are required" });
     }
-    
-    // Validate Ethereum address format
-    if (!contractUtils.web3.utils.isAddress(playerAddress)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: "Invalid Ethereum address format" 
-      });
+    if (typeof playerAddress !== 'string' || playerAddress.trim().length === 0) {
+      return res.status(400).json({ success: false, error: "Invalid player identifier" });
     }
     
     // Validate points
@@ -215,20 +88,11 @@ app.get('/get-points/:address', async (req, res) => {
   console.log('Get points endpoint accessed');
   try {
     const address = req.params.address;
-    
     if (!address) {
-      return res.status(400).json({ 
-        success: false, 
-        error: "Address parameter is required" 
-      });
+      return res.status(400).json({ success: false, error: "Player id parameter is required" });
     }
-    
-    // Validate Ethereum address format
-    if (!contractUtils.web3.utils.isAddress(address)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: "Invalid Ethereum address format" 
-      });
+    if (typeof address !== 'string' || address.trim().length === 0) {
+      return res.status(400).json({ success: false, error: "Invalid player identifier" });
     }
     
     console.log(`Fetching points for address: ${address}`);
@@ -249,66 +113,7 @@ app.get('/get-points/:address', async (req, res) => {
   }
 });
 
-// Claim rewards endpoint
-app.post('/claim-rewards', async (req, res) => {
-  console.log('Claim rewards endpoint accessed');
-  try {
-    const { playerAddress } = req.body;
-    
-    if (!playerAddress) {
-      return res.status(400).json({ 
-        success: false, 
-        error: "Player address is required" 
-      });
-    }
-    
-    // Validate Ethereum address format
-    if (!contractUtils.web3.utils.isAddress(playerAddress)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: "Invalid Ethereum address format" 
-      });
-    }
-   
-    // Check if player has any points
-    if (currentPoints <= 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: "No points available to claim" 
-      });
-    }
-    
-    // Calculate BTM amount (100 points = 1 BTM)
-    const conversionRate = 100; // 100 points = 1 BTM
-    const btmAmount = currentPoints / conversionRate;
-    const btmAmountWei = contractUtils.web3.utils.toWei(btmAmount.toString(), 'ether');
-    
-    console.log(`Converting ${currentPoints} points to ${btmAmount} BTM for ${playerAddress}`);
-    
-    // In a real implementation, you would transfer tokens here
-    // For demo, just simulate success
-    const transferResult = {
-      success: true,
-      transactionHash: "0x" + Math.random().toString(16).substr(2, 64)
-    };
-    
-    // Reset points after claiming
-    playerPointsDB[playerAddress] = 0;
-    
-    res.json({ 
-      success: true, 
-      pointsClaimed: currentPoints,
-      tokensReceived: btmAmount,
-      transactionHash: transferResult.transactionHash
-    });
-  } catch (error) {
-    console.error('Error processing reward claim:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message || "Failed to process reward claim" 
-    });
-  }
-});
+// Removed claim-rewards endpoint
 
 // THEN add the catch-all route
 app.use((req, res) => {

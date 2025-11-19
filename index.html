@@ -1,31 +1,70 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الدامة التركية - P2E</title>
+    <title>Turkish Draughts - Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Styles remain the same */
+        /* Styles inspired by the provided image */
         :root {
-            --dark-bg: #1f2937; --medium-bg: #374151; --light-elements: #f3f4f6;
-            --accent-color: #f59e0b; --board-bg: #4b5563; --square-light: #d1d5db;
-            --square-dark: #9ca3af; --line-color: rgba(243, 244, 246, 0.1);
-            --player1-color-start: #e5e7eb; --player1-color-end: #d1d5db;
-            --player2-color-start: #4b5563; --player2-color-end: #374151;
-            --selected-color: var(--accent-color); --king-indicator: #fbbf24;
-            --possible-move-color: rgba(52, 211, 153, 0.4);
+            --dark-bg: #100E19;
+            --medium-bg: #201C2E;
+            --light-elements: #F0F0F0;
+            --accent-color: #5F4B8B;
+            --board-bg: #201C2E;
+            --square-light: #3D3454;
+            --square-dark: #2C2541;
+            --line-color: rgba(95, 75, 139, 0.5);
+            --player1-color-start: #8A63D2;
+            --player1-color-end: #5F4B8B;
+            --player2-color-start: #4B3A6B;
+            --player2-color-end: #2C2541;
+            --selected-color: var(--accent-color);
+            --king-indicator: #F0F0F0;
+            --possible-move-color: rgba(95, 75, 139, 0.4);
+            --capture-move-color: rgba(239, 68, 68, 0.4); /* Kept red for captures as it's a standard warning color */
+            --must-capture-piece-color: rgba(251, 146, 60, 0.5);
+            --button-bg-start: #5F4B8B;
+            --button-bg-end: #5F4B8B;
+            --button-hover-bg-start: #715A9E;
+            --button-hover-bg-end: #715A9E;
+            --button-accent-bg: var(--accent-color);
+            --button-accent-hover-bg: #715A9E;
+            --points-color: #a7f3d0;
+            
+        }
+        /* Final color scheme from the new image */
+        :root {
+            --dark-bg: #1A1625;
+            --medium-bg: #2C2A3A;
+            --light-elements: #F0F0F0;
+            --accent-color: #A08FFF;
+            --board-bg: #2C2A3A;
+            --square-light: #4C4863;
+            --square-dark: #38354B;
+            --line-color: rgba(160, 143, 255, 0.5);
+            --player1-color-start: #6D63FF;
+            --player1-color-end: #584FCF;
+            --player2-color-start: #EAEAEA;
+            --player2-color-end: #DCDCDC;
+            --selected-color: #A08FFF;
+            --king-indicator: #FFFFFF;
+            --possible-move-color: rgba(0, 255, 221, 0.4);
             --capture-move-color: rgba(239, 68, 68, 0.4);
             --must-capture-piece-color: rgba(251, 146, 60, 0.5);
-            --button-bg-start: #4b5563; --button-bg-end: #374151;
-            --button-hover-bg-start: #525c6a; --button-hover-bg-end: #404a58;
-            --button-accent-bg: var(--accent-color); --button-accent-hover-bg: #d97706;
-            --points-color: #a7f3d0; /* Light green for points */
-            --btm-color: #fde047; /* Light yellow for BTM */
+            --button-bg-start: #6D63FF;
+            --button-bg-end: #584FCF;
+            --button-hover-bg-start: #8177FF;
+            --button-hover-bg-end: #6D63FF;
+            --button-accent-bg: var(--accent-color);
+            --button-accent-hover-bg: #B4A5FF;
+            --points-color: #a7f3d0;
+            
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -33,25 +72,48 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 1.5rem; gap: 1.5rem;
         }
         h1 { color: var(--light-elements); font-weight: 500; font-size: 1.75rem; text-align: center; }
-        .game-setup, .game-info, .p2e-info {
+        .game-setup, .game-info {
             display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1rem;
             background-color: var(--medium-bg); padding: 1rem; border-radius: 0.75rem; width: 100%; max-width: 600px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .mode-selection label { margin-left: 0.5rem; }
+        .mode-selection { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+        .mode-selection label { margin-left: 0.5rem; text-align: center; }
         .mode-selection select {
             padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--square-dark);
-            background-color: var(--dark-bg); color: var(--light-elements); font-size: 0.9em; cursor: pointer;
+            background-color: var(--dark-bg); color: var(--light-elements); font-size: 0.8em; cursor: pointer;
         }
-        .status-area, .player-stats {
+        .player-stats {
             background-color: rgba(0,0,0, 0.2); padding: 0.6rem 1rem; border-radius: 0.5rem;
-            border: 1px solid var(--line-color); font-size: 0.9em; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); text-align: center;
+            border: 1px solid var(--line-color); font-size: 0.8em; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .player-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-name {
+            font-weight: bold;
+        }
+
+        .status-area {
+            background-color: rgba(0,0,0, 0.2); padding: 0.6rem 1rem; border-radius: 0.5rem;
+            border: 1px solid var(--line-color); font-size: 0.8em; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); text-align: center;
+            min-height: 2.5em; /* Prevents layout shift */
+            display: flex; /* Centers text vertically */
+            justify-content: center; /* Centers text horizontally */
+            align-items: center; /* Centers text vertically */
         }
         .status-area { flex-grow: 1; }
         .player-stats { white-space: nowrap; }
         .player-stats span { margin: 0 0.3em; }
         .points { color: var(--points-color); font-weight: 500; }
-        .btm-balance { color: var(--btm-color); font-weight: 500; }
+        
 
         #board {
             display: grid; --square-size: clamp(40px, 10vmin, 65px);
@@ -60,6 +122,7 @@
             background-color: var(--board-bg); border-radius: 0.75rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             position: relative; overflow: hidden; border: 3px solid var(--medium-bg);
+            flex-shrink: 0; /* Prevent board from shrinking */
         }
         .square { display: flex; justify-content: center; align-items: center; position: relative; }
         .square:nth-child(16n+2), .square:nth-child(16n+4), .square:nth-child(16n+6), .square:nth-child(16n+8),
@@ -95,7 +158,7 @@
         .possible-move::before { background-color: var(--possible-move-color); box-shadow: 0 0 10px var(--possible-move-color); }
         .capture-move::before { background-color: var(--capture-move-color); box-shadow: 0 0 10px var(--capture-move-color); }
         button {
-            padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; font-size: 1rem; font-weight: 500;
+            padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; font-size: 0.9rem; font-weight: 500;
             color: var(--light-elements); cursor: pointer; transition: background 0.3s ease, box-shadow 0.2s ease, transform 0.1s ease;
             background-image: linear-gradient(to bottom, var(--button-bg-start), var(--button-bg-end));
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -114,41 +177,57 @@
         }
         #win-message button { margin-top: 1rem; }
         .thinking { pointer-events: none; opacity: 0.7; }
+
+        .game-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .game-info, .game-setup {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 250px;
+        }
+        .sidebar { display: flex; flex-direction: column; gap: 1rem; }
     </style>
 </head>
 <body>
 
-    <h1>لعبة الدامة التركية - P2E</h1>
+    <h1>Turkish Draughts - Game</h1>
 
-    <div class="game-setup">
-        <div class="mode-selection">
-            <label for="gameMode">وضع اللعب:</label>
-            <select id="gameMode">
-                <option value="pvp">لاعب ضد لاعب (PvP)</option>
-                <option value="pvc" selected>لاعب ضد كمبيوتر (AI)</option>
-            </select>
+    <div class="game-container">
+        <div class="sidebar">
+        <div class="game-info">
+            <div class="status-area" id="statusArea">Initializing...</div>
+            <div class="player-stats" id="playerStatsArea">
+                 </div>
         </div>
-        <button id="newGameBtn" class="accent">لعبة جديدة</button>
-        <button id="connectWalletBtn" onclick="connectAndFetchBalance()">ربط المحفظة</button>
+
+        <div class="game-setup">
+            <div class="mode-selection">
+                <label for="gameMode">Player vx Bot (Ai)</label>
+                <select id="gameMode">
+                    <option value="pvp">Player vs Player (PvP)</option>
+                    <option value="pvc" selected>Player vx Bot (Ai)</option>
+                </select>
+            </div>
+            <button id="newGameBtn" class="accent">New Game</button>
+        </div>
+        </div>
+
+        <div id="board"></div>
     </div>
 
-    <div class="game-info">
-        <div class="status-area" id="statusArea">جارٍ التهيئة...</div>
-        <div class="player-stats" id="playerStatsArea">
-             </div>
-    </div>
-
-     <div class="p2e-info">
-         <span>رصيد $BTM: <span id="btmBalance" class="btm-balance">غير متصل</span></span>
-         <button id="claimBtmBtn" onclick="handleClaimBtm()" disabled>المطالبة بـ $BTM</button>
-         <span id="pvpFeeInfo" style="display: none;">رسوم الدخول (PvP): 0.001</span>
-     </div>
-
-    <div id="board"></div>
+    
 
     <div id="win-message">
         <p id="win-text"></p>
-        <button id="playAgainBtn" class="accent">العب مرة أخرى</button>
+        <button id="playAgainBtn" class="accent">Play Again</button>
     </div>
 
     <script>
@@ -165,17 +244,13 @@
         const winMessageElement = document.getElementById('win-message');
         const winTextElement = document.getElementById('win-text');
         const playAgainBtn = document.getElementById('playAgainBtn');
-        const connectWalletBtn = document.getElementById('connectWalletBtn');
-        const btmBalanceElement = document.getElementById('btmBalance');
-        const claimBtmBtn = document.getElementById('claimBtmBtn');
-        const pvpFeeInfoElement = document.getElementById('pvpFeeInfo');
 
         // Constants
         const BOARD_SIZE = 8;
         const EMPTY = 0;
         const P1_MAN = 1; const P2_MAN = 2; const P1_KING = 3; const P2_KING = 4;
         const AI_PLAYER = 2; const HUMAN_PLAYER = 1;
-        const API_BASE_URL = 'https://noone-3kkj.onrender.com'; // Your API base URL
+        
 
         // Game State Variables
         let board = []; let currentPlayer = HUMAN_PLAYER; let selectedPiece = null;
@@ -183,11 +258,9 @@
         let isMidCaptureSequence = false; let player1PiecesCount = 16; let player2PiecesCount = 16;
         let player1Points = 0; let player2Points = 0; let gameOver = false;
         let gameMode = 'pvc'; let isComputerThinking = false;
-        let connectedPlayerAddress = null; // Store connected wallet address
+        
 
-        // P2E Constants
-        const POINTS_PER_CAPTURE = 1; const PVP_POINTS_TO_BTM = 1000;
-        const PVE_POINTS_TO_BTM = 5000; const PVP_WIN_BONUS_BTM = 1; const PVP_ENTRY_FEE = 0.001;
+        const POINTS_PER_CAPTURE = 1;
 
         // --- Game Initialization ---
         function initializeBoard() {
@@ -210,13 +283,7 @@
 
             updatePlayerStatsDisplay(); // Update display including points
             calculateMovesForCurrentPlayer(); updateStatus();
-            pvpFeeInfoElement.style.display = (gameMode === 'pvp') ? 'inline' : 'none';
-            // Update balance display based on connection status
-            btmBalanceElement.textContent = connectedPlayerAddress ? 'جاري الجلب...' : 'غير متصل';
-            connectWalletBtn.disabled = !!connectedPlayerAddress; // Disable if already "connected"
-            connectWalletBtn.textContent = connectedPlayerAddress ? `المحفظة: ${connectedPlayerAddress.substring(0, 6)}...${connectedPlayerAddress.substring(connectedPlayerAddress.length - 4)}` : 'ربط المحفظة';
-            if (connectedPlayerAddress) { fetchBtmBalance(connectedPlayerAddress); } // Fetch balance if already connected
-            checkClaimButtonStatus(); // Check claim button status on init
+            
 
             console.log("Board initialized. Mode:", gameMode, "Current Player:", currentPlayer);
         }
@@ -230,10 +297,10 @@
         function handleSquareClick(event) { /* ... unchanged ... */
             if (gameOver || isComputerThinking || (gameMode === 'pvc' && currentPlayer === AI_PLAYER) || isMidCaptureSequence) return;
             const square = event.currentTarget; const row = parseInt(square.dataset.row); const col = parseInt(square.dataset.col);
-            if (selectedPiece) { const move = currentTurnMoves.find(m => m.fromRow === selectedPiece.row && m.fromCol === selectedPiece.col && m.sequence[m.sequence.length - 1].toRow === row && m.sequence[m.sequence.length - 1].toCol === col); if (move) { if (maxCaptureLength > 0 && move.captureCount < maxCaptureLength) { setStatus("خطأ: يجب اختيار حركة الأسر الأقصى!"); return; } makeMove(move); } else { deselectPiece(); } }
+            if (selectedPiece) { const move = currentTurnMoves.find(m => m.fromRow === selectedPiece.row && m.fromCol === selectedPiece.col && m.sequence[m.sequence.length - 1].toRow === row && m.sequence[m.sequence.length - 1].toCol === col); if (move) { if (maxCaptureLength > 0 && move.captureCount < maxCaptureLength) { setStatus("Error: you must choose the max capture move!"); return; } makeMove(move); } else { deselectPiece(); } }
         }
         function handlePieceClick(event) { /* ... unchanged ... */
-            if (gameOver || isComputerThinking || (gameMode === 'pvc' && currentPlayer === AI_PLAYER)) return; event.stopPropagation(); const pieceElement = event.currentTarget; const row = parseInt(pieceElement.dataset.row); const col = parseInt(pieceElement.dataset.col); const pieceType = board[row][col]; const player = getPlayer(pieceType); if (player !== currentPlayer) { setStatus(`ليس دور اللاعب ${player}`); return; } if (isMidCaptureSequence) { if (!(selectedPiece && selectedPiece.element === pieceElement)){ setStatus("أكمل تسلسل الأسر الحالي."); return; } highlightPossibleMoves(currentTurnMoves); return; } if (maxCaptureLength > 0 && !piecesThatMustCapture.some(p => p.row === row && p.col === col)) { setStatus("يجب اختيار قطعة يمكنها الأسر."); highlightPiecesThatMustCapture(); return; } if (selectedPiece && selectedPiece.element === pieceElement) { deselectPiece(); } else { selectPiece(pieceElement, row, col, pieceType); }
+            if (gameOver || isComputerThinking || (gameMode === 'pvc' && currentPlayer === AI_PLAYER)) return; event.stopPropagation(); const pieceElement = event.currentTarget; const row = parseInt(pieceElement.dataset.row); const col = parseInt(pieceElement.dataset.col); const pieceType = board[row][col]; const player = getPlayer(pieceType); if (player !== currentPlayer) { setStatus(`Not player ${player}'s turn`); return; } if (isMidCaptureSequence) { if (!(selectedPiece && selectedPiece.element === pieceElement)){ setStatus("Complete the current capture sequence."); return; } highlightPossibleMoves(currentTurnMoves); return; } if (maxCaptureLength > 0 && !piecesThatMustCapture.some(p => p.row === row && p.col === col)) { setStatus("You must choose a piece that can capture."); highlightPiecesThatMustCapture(); return; } if (selectedPiece && selectedPiece.element === pieceElement) { deselectPiece(); } else { selectPiece(pieceElement, row, col, pieceType); }
         }
 
         // --- Piece Selection Logic ---
@@ -306,7 +373,7 @@
                 currentRow = toRow; currentCol = toCol;
                 // **FIX:** Call the correct function to update stats display
                 updatePlayerStatsDisplay();
-                if (isMidCaptureSequence && i < sequence.length - 1) { setStatus(wasComputerMove ? `الكمبيوتر يكمل الأسر...` : `أكمل الأسر...`); await sleep(400); }
+                if (isMidCaptureSequence && i < sequence.length - 1) { setStatus(wasComputerMove ? `Computer continues capture...` : `Continue capture...`); await sleep(400); }
             } // --- End of sequence steps loop ---
 
              // --- Update Total Points (Frontend Only) ---
@@ -314,8 +381,7 @@
                  if (executingPlayer === HUMAN_PLAYER) { player1Points += pointsEarnedThisTurn; }
                  else { player2Points += pointsEarnedThisTurn; }
                  console.log(`Player ${executingPlayer} earned ${pointsEarnedThisTurn} points. Total: ${executingPlayer === 1 ? player1Points : player2Points}`);
-                 updatePlayerStatsDisplay(); // Update display again with total points
-                 checkClaimButtonStatus();
+                 updatePlayerStatsDisplay();
              }
              // -----------------------------------------
 
@@ -344,9 +410,8 @@
                  boardElement.classList.remove('thinking'); isComputerThinking = false;
                  updateStatus(); // Update status to show final win/loss message
                  const winner = getOpponent(currentPlayer); // Winner is the one whose opponent has no moves
-                 console.log(`P2E: Game Over. Winner: Player ${winner}`);
-                 // TODO: Add P2E win bonus logic here if needed
-                 if (gameMode === 'pvp' && winner !== 'draw') { console.log(`P2E: Awarding ${PVP_WIN_BONUS_BTM} $BTM win bonus to Player ${winner}`); /* Trigger backend */ }
+                 console.log(`Game Over. Winner: Player ${winner}`);
+                
              }
             updatePlayerStatsDisplay(); // Update stats display at the very end of the turn
         }
@@ -356,17 +421,46 @@
 
         // --- Player Turn and Status Updates ---
         function switchPlayer() { /* ... unchanged ... */ currentPlayer = getOpponent(currentPlayer); console.log("Switched player to:", currentPlayer); }
-        function updateStatus(message = null) { /* ... unchanged ... */ if (gameOver) { const finalMsg = winTextElement.textContent; if (finalMsg) statusArea.textContent = finalMsg; return; } if (isComputerThinking) { statusArea.textContent = "الكمبيوتر يفكر..."; return; } if (message) { statusArea.textContent = message; } else { let playerText = (gameMode === 'pvc' && currentPlayer === AI_PLAYER) ? "الكمبيوتر" : `اللاعب ${currentPlayer}`; let statusText = `دور ${playerText}`; if (maxCaptureLength > 0) { statusText += ` (الأسر الأقصى إلزامي: ${maxCaptureLength} قطعة)`; } statusArea.textContent = statusText; } }
-        function setStatus(message) { /* ... unchanged ... */ statusArea.textContent = message; }
+        function updateStatus(message = null) {
+            if (gameOver) {
+                const finalMsg = winTextElement.textContent;
+                if (finalMsg) setStatus(finalMsg);
+                return;
+            }
+            if (isComputerThinking) {
+                setStatus("Computer is thinking...");
+                return;
+            }
+
+            if (message) {
+                setStatus(message);
+            } else {
+                let playerText = (gameMode === 'pvc' && currentPlayer === AI_PLAYER) ? "Computer" : `Player ${currentPlayer}`;
+                let statusText = `Turn ${playerText}`;
+                if (maxCaptureLength > 0) {
+                    statusText += ` (Max capture is mandatory: ${maxCaptureLength} piece(s))`;
+                }
+                setStatus(statusText);
+            }
+        }
+
+        function setStatus(message) {
+            statusArea.textContent = message;
+        }
 
         // Updated to display pieces AND points
         function updatePlayerStatsDisplay() {
-            const p1Name = "اللاعب 1";
-            const p2Name = (gameMode === 'pvc') ? "الكمبيوتر" : "اللاعب 2";
-            // Use innerHTML to include Font Awesome icons
+            const p1Name = "Player 1";
+            const p2Name = (gameMode === 'pvc') ? "Computer" : "Player 2";
             playerStatsArea.innerHTML = `
-                <span>${p1Name}: ${player1PiecesCount}&nbsp;<i class="fas fa-chess-pawn"></i> / <span class="points">${player1Points}&nbsp;نقطة</span></span> |
-                <span>${p2Name}: ${player2PiecesCount}&nbsp;<i class="fas fa-chess-pawn"></i> / <span class="points">${player2Points}&nbsp;نقطة</span></span>
+                <div class="player-stat">
+                    <span class="player-name">${p1Name}</span>
+                    <span class="stat-line">${player1PiecesCount} <i class="fas fa-chess-pawn"></i> / ${player1Points} points</span>
+                </div>
+                <div class="player-stat">
+                    <span class="player-name">${p2Name}</span>
+                    <span class="stat-line">${player2PiecesCount} <i class="fas fa-chess-pawn"></i> / ${player2Points} points</span>
+                </div>
             `;
         }
         // Initial call
@@ -378,219 +472,23 @@
         function findFirstPieceOfType(type) { /* ... unchanged ... */ for (let r=0; r<8; r++) for(let c=0; c<8; c++) if(board[r][c]===type) return {r,c}; return null; }
 
         // --- End Game Display ---
-        function endGame(winner) { /* ... unchanged ... */ if (gameOver) return; console.log("--- Game Over --- Winner:", winner); gameOver = true; isComputerThinking = false; boardElement.classList.remove('thinking'); let winnerText = ""; if (winner === 'draw') { winnerText = "انتهت اللعبة بالتعادل!"; } else { let winnerName = (gameMode === 'pvc' && winner === AI_PLAYER) ? "الكمبيوتر" : `اللاعب ${winner}`; winnerText = `${winnerName} فاز!`; } statusArea.textContent = winnerText; winTextElement.textContent = winnerText; winMessageElement.style.display = 'flex'; }
+        function endGame(winner) { /* ... unchanged ... */ if (gameOver) return; console.log("--- Game Over --- Winner:", winner); gameOver = true; isComputerThinking = false; boardElement.classList.remove('thinking'); let winnerText = ""; if (winner === 'draw') { winnerText = "Game ended in a draw!"; } else { let winnerName = (gameMode === 'pvc' && winner === AI_PLAYER) ? "Computer" : `Player ${winner}`; winnerText = `${winnerName} wins!`; } statusArea.textContent = winnerText; winTextElement.textContent = winnerText; winMessageElement.style.display = 'flex'; }
 
         // --- Event Listeners for Buttons ---
         newGameBtn.addEventListener('click', initializeBoard);
         playAgainBtn.addEventListener('click', initializeBoard);
         gameModeSelect.addEventListener('change', initializeBoard);
 
-        // --- P2E / Wallet Interaction Functions ---
-        async function connectAndFetchBalance() {
-            console.log("Attempting to connect wallet and fetch balance...");
-            // --- Placeholder for actual wallet connection ---
-            // TODO: Replace this with actual wallet connection logic (e.g., using MetaMask)
-            /*
-            // Example using ethers.js (requires including the library)
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    await provider.send("eth_requestAccounts", []); // Request account access
-                    const signer = provider.getSigner();
-                    connectedPlayerAddress = await signer.getAddress();
-                    console.log("Wallet connected:", connectedPlayerAddress);
-                    connectWalletBtn.textContent = `المحفظة: ${connectedPlayerAddress.substring(0, 6)}...${connectedPlayerAddress.substring(connectedPlayerAddress.length - 4)}`;
-                    connectWalletBtn.disabled = true; // Disable after connecting
-                } catch (error) {
-                    console.error("Wallet connection failed:", error);
-                    setStatus("فشل ربط المحفظة.");
-                    connectedPlayerAddress = null;
-                    btmBalanceElement.textContent = 'فشل الاتصال';
-                    return; // Stop if connection failed
-                }
-            } else {
-                alert("يرجى تثبيت MetaMask أو محفظة متوافقة!");
-                return; // Stop if no provider found
-            }
-            */
-            // Using the player address provided by the user:
-            connectedPlayerAddress = "0xa04591BF1E246eEDeb17B825cB2d4f0dc1A5B5BB"; // !! Using provided player address !!
-            console.log("Using player address:", connectedPlayerAddress);
-            connectWalletBtn.textContent = `المحفظة: ${connectedPlayerAddress.substring(0, 6)}...${connectedPlayerAddress.substring(connectedPlayerAddress.length - 4)}`;
-            connectWalletBtn.disabled = true; // Disable button after "connecting"
-            // --- End Placeholder ---
+        // تم حذف ميزات ربط المحفظة
 
-            // Fetch balance using the API *after* getting the address
-            if (connectedPlayerAddress) {
-                await fetchBtmBalance(connectedPlayerAddress); // Call the fetch function
-            }
-        }
-
-        // Function to fetch BTM balance from the backend API (with detailed logging)
-        async function fetchBtmBalance(address) {
-            if (!address) {
-                console.warn("fetchBtmBalance called without address.");
-                btmBalanceElement.textContent = 'غير متصل'; // Show not connected if no address
-                return;
-            }
-            console.log(`FETCH: Fetching BTM balance for ${address}...`); // Log start
-            btmBalanceElement.textContent = 'جاري الجلب...'; // Indicate loading state
-            const apiUrl = `${API_BASE_URL}/balance/${address}`; // Construct the API URL
-
-            let response; // Declare response outside try
-            try {
-                console.log(`FETCH: Sending request to ${apiUrl}`);
-                response = await fetch(apiUrl); // Make the GET request
-                console.log(`FETCH: Received response status: ${response.status}`); // Log status
-
-                if (!response.ok) {
-                    // Attempt to parse error details from the response body
-                    let errorData = { error: `HTTP error! status: ${response.status}` };
-                    try {
-                        // Try parsing JSON, but fallback if response is not JSON
-                        errorData = await response.json();
-                        console.error('FETCH: API Error Response Body:', errorData);
-                    } catch (e) {
-                        console.log("FETCH: Error response body was not JSON.");
-                     }
-                    // Throw an error with details from API response or default HTTP error
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-
-                console.log("FETCH: Attempting to parse JSON response...");
-                const data = await response.json(); // Parse the successful JSON response
-                console.log("FETCH: API Response Data Parsed:", data);
-
-                // Display the formatted balance received from the API
-                if (data && data.formattedBalance !== undefined) {
-                     btmBalanceElement.textContent = data.formattedBalance; // Update UI
-                     console.log("FETCH: Balance updated successfully in UI.");
-                } else {
-                     // Handle case where response is OK but data format is unexpected
-                     console.error("FETCH: API response missing 'formattedBalance' field:", data);
-                     btmBalanceElement.textContent = 'خطأ في البيانات'; // Display data error
-                }
-            } catch (error) {
-                // Handle network errors (fetch failed) or errors thrown above
-                console.error('FETCH: Error during fetch operation:', error); // Log any error during fetch/parsing
-                btmBalanceElement.textContent = 'خطأ في الجلب'; // Display fetch error
-                // Optionally, provide more specific feedback to the user in the status area
-                // setStatus(`خطأ في جلب الرصيد: ${error.message}`);
-            } finally {
-                 console.log("FETCH: fetchBtmBalance finished."); // Log completion regardless of success/failure
-            }
-        }
-
-
-        // Updated Claim BTM function
-        async function handleClaimBtm() {
-            console.log("handleClaimBtm called");
-            if (!connectedPlayerAddress) {
-                 alert("يرجى ربط المحفظة أولاً!"); // Alert in Arabic
-                 return;
-            }
-
-            // Determine points available for the connected player (assuming P1 for now)
-            // TODO: In a real scenario, fetch secure points balance from backend first
-            const pointsAvailable = player1Points;
-            const pointsNeeded = (gameMode === 'pvp') ? PVP_POINTS_TO_BTM : PVE_POINTS_TO_BTM;
-            const btmToClaim = Math.floor(pointsAvailable / pointsNeeded);
-
-            if (btmToClaim < 1) {
-                alert("ليس لديك نقاط كافية للمطالبة بـ $BTM."); // Alert in Arabic
-                return;
-            }
-
-            const pointsToConvert = btmToClaim * pointsNeeded; // Points that will be used
-            console.log(`Attempting to claim ${btmToClaim} BTM for ${pointsToConvert} points...`);
-            setStatus("جاري إرسال طلب المطالبة..."); // Update status
-            claimBtmBtn.disabled = true; // Disable button during request
-
-            // --- Send request to backend API ---
-            // IMPORTANT: User needs to implement this '/claim-rewards' endpoint on their backend
-            const claimApiUrl = `${API_BASE_URL}/claim-rewards`; // Hypothetical endpoint
-
-            try {
-                console.log(`CLAIM: Sending request to ${claimApiUrl}`);
-                const response = await fetch(claimApiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    // Send player address and points being converted
-                    body: JSON.stringify({
-                        playerAddress: connectedPlayerAddress,
-                        points: pointsToConvert // Send points being used
-                        // Or send btmToClaim, depending on your API design
-                    })
-                });
-                console.log(`CLAIM: Received response status: ${response.status}`);
-
-                // Try parsing JSON regardless of status, as error messages might be in body
-                let data = {};
-                try {
-                    data = await response.json();
-                    console.log("CLAIM: API Response Data Parsed:", data);
-                } catch (e) {
-                    console.error("CLAIM: Could not parse JSON response body.");
-                    // If parsing fails and status wasn't ok, throw generic HTTP error
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-
-                if (!response.ok) {
-                    // Handle API errors (like 400, 500) using parsed data if available
-                    console.error("CLAIM: API Error Response:", data);
-                    throw new Error(data.error || `HTTP error! status: ${response.status}`);
-                }
-
-                // --- Handle successful claim ---
-                console.log("CLAIM: Successful:", data);
-                alert(`تمت المطالبة بـ ${data.claimedAmountBTM || btmToClaim} $BTM بنجاح!`); // Success message
-
-                // Update points locally (subtract points claimed)
-                // IMPORTANT: Ideally, fetch the new secure point balance from backend instead of just subtracting
-                player1Points -= pointsToConvert;
-                updatePlayerStatsDisplay();
-                checkClaimButtonStatus(); // Re-check if button should be enabled
-
-                // Fetch updated BTM balance
-                await fetchBtmBalance(connectedPlayerAddress);
-                setStatus("تمت المطالبة بنجاح!"); // Update status
-
-            } catch (error) {
-                // Handle network errors or errors from API response
-                console.error("CLAIM: Error sending claim request:", error);
-                alert(`فشلت المطالبة: ${error.message || 'خطأ غير معروف'}`); // Error message in Arabic
-                setStatus("فشلت عملية المطالبة."); // Update status
-                // Re-enable button on failure if appropriate (maybe only for non-blockchain errors?)
-                checkClaimButtonStatus();
-            } finally {
-                console.log("CLAIM: handleClaimBtm finished.");
-            }
-        }
-
-        // Placeholder function (keep for now if needed elsewhere)
-        function claimBtmPlaceholder() {
-            console.warn("claimBtmPlaceholder called - Now redirecting to handleClaimBtm");
-            handleClaimBtm(); // Redirect to the actual function
-        }
-
-
-        // Function to check if claim button should be enabled
-        function checkClaimButtonStatus() {
-             // Enable claim button only if Player 1 (assuming human & connected) has enough points
-             // TODO: Adapt if Player 2 can also claim in PvP or if connected address matters more
-             const pointsNeeded = (gameMode === 'pvp') ? PVP_POINTS_TO_BTM : PVE_POINTS_TO_BTM;
-             claimBtmBtn.disabled = !(connectedPlayerAddress && player1Points >= pointsNeeded);
-        }
-
-
+        
         // ========================================================================
         // Part 2: AI Logic (Bot) - Simplified Evaluation, More Logging
         // ========================================================================
         const AI_SEARCH_DEPTH = 3; // Adjust depth for difficulty/performance
 
         // --- AI Turn Trigger ---
-        function triggerComputerMove() { /* ... unchanged ... */ if (gameOver || currentPlayer !== AI_PLAYER || gameMode !== 'pvc') { console.warn("AI Trigger: Conditions not met.", {gameOver, currentPlayer, gameMode}); isComputerThinking = false; boardElement.classList.remove('thinking'); return; } console.log("--- AI TURN START ---"); isComputerThinking = true; boardElement.classList.add('thinking'); updateStatus(); setTimeout(() => { const aiMoves = currentTurnMoves; if (aiMoves.length === 0) { console.log("AI has no moves. Game should be over."); isComputerThinking = false; boardElement.classList.remove('thinking'); updateStatus(); if (!gameOver) checkGameOver(); return; } console.log(`AI evaluating ${aiMoves.length} moves (Max Caps: ${maxCaptureLength}) at depth ${AI_SEARCH_DEPTH}...`); console.log("AI Available Moves:", aiMoves.map(m => `(${m.fromRow},${m.fromCol})->(${m.sequence[m.sequence.length-1].toRow},${m.sequence[m.sequence.length-1].toCol})[${m.captureCount}]`)); const bestMove = findBestMoveMinimax(board.map(r => [...r]), aiMoves, AI_SEARCH_DEPTH); if (bestMove) { const bestMoveSeq = bestMove.sequence[bestMove.sequence.length-1]; console.log(`AI CHOSE MOVE: (${bestMove.fromRow},${bestMove.fromCol}) -> (${bestMoveSeq.toRow},${bestMoveSeq.toCol}) Captures: ${bestMove.captureCount}`); const pieceElement = boardElement.querySelector(`.piece[data-row='${bestMove.fromRow}'][data-col='${bestMove.fromCol}']`); if(pieceElement) { pieceElement.classList.add('selected'); setTimeout(() => { if(pieceElement) pieceElement.classList.remove('selected'); console.log("AI calling makeMove..."); makeMove(bestMove); }, 250); } else { console.error("AI Error: Could not find piece element for best move."); makeMove(bestMove); } } else { console.error("AI Error: findBestMoveMinimax returned null! No move chosen."); if(aiMoves.length > 0){ console.log("AI making random fallback move."); makeMove(aiMoves[Math.floor(Math.random() * aiMoves.length)]); } else { console.error("AI Error: No moves available for fallback."); isComputerThinking = false; boardElement.classList.remove('thinking'); updateStatus("حدث خطأ في تفكير الكمبيوتر."); if (!gameOver) checkGameOver(); } } }, 50); }
+        function triggerComputerMove() { /* ... unchanged ... */ if (gameOver || currentPlayer !== AI_PLAYER || gameMode !== 'pvc') { console.warn("AI Trigger: Conditions not met.", {gameOver, currentPlayer, gameMode}); isComputerThinking = false; boardElement.classList.remove('thinking'); return; } console.log("--- AI TURN START ---"); isComputerThinking = true; boardElement.classList.add('thinking'); updateStatus(); setTimeout(() => { const aiMoves = currentTurnMoves; if (aiMoves.length === 0) { console.log("AI has no moves. Game should be over."); isComputerThinking = false; boardElement.classList.remove('thinking'); updateStatus(); if (!gameOver) checkGameOver(); return; } console.log(`AI evaluating ${aiMoves.length} moves (Max Caps: ${maxCaptureLength}) at depth ${AI_SEARCH_DEPTH}...`); console.log("AI Available Moves:", aiMoves.map(m => `(${m.fromRow},${m.fromCol})->(${m.sequence[m.sequence.length-1].toRow},${m.sequence[m.sequence.length-1].toCol})[${m.captureCount}]`)); const bestMove = findBestMoveMinimax(board.map(r => [...r]), aiMoves, AI_SEARCH_DEPTH); if (bestMove) { const bestMoveSeq = bestMove.sequence[bestMove.sequence.length-1]; console.log(`AI CHOSE MOVE: (${bestMove.fromRow},${bestMove.fromCol}) -> (${bestMoveSeq.toRow},${bestMoveSeq.toCol}) Captures: ${bestMove.captureCount}`); const pieceElement = boardElement.querySelector(`.piece[data-row='${bestMove.fromRow}'][data-col='${bestMove.fromCol}']`); if(pieceElement) { pieceElement.classList.add('selected'); setTimeout(() => { if(pieceElement) pieceElement.classList.remove('selected'); console.log("AI calling makeMove..."); makeMove(bestMove); }, 250); } else { console.error("AI Error: Could not find piece element for best move."); makeMove(bestMove); } } else { console.error("AI Error: findBestMoveMinimax returned null! No move chosen."); if(aiMoves.length > 0){ console.log("AI making random fallback move."); makeMove(aiMoves[Math.floor(Math.random() * aiMoves.length)]); } else { console.error("AI Error: No moves available for fallback."); isComputerThinking = false; boardElement.classList.remove('thinking'); updateStatus("An error occurred in AI thinking."); if (!gameOver) checkGameOver(); } } }, 50); }
         function findBestMoveMinimax(currentBoardState, validMoves, depth) { /* ... unchanged ... */ console.log(`findBestMoveMinimax: Evaluating ${validMoves.length} moves, depth ${depth}`); let bestScore = -Infinity; let bestMoveFound = null; if (validMoves.length === 0) { console.error("findBestMoveMinimax: No valid moves provided!"); return null; } for (const move of validMoves) { let boardAfterMove = simulateSequence(currentBoardState, move); const score = minimaxRecursive(boardAfterMove, depth - 1, -Infinity, Infinity, false); const lastStep = move.sequence[move.sequence.length-1]; console.log(` -> Eval Root: (${move.fromRow},${move.fromCol})->(${lastStep.toRow},${lastStep.toCol}) Caps:${move.captureCount} Score:${score}`); if (bestMoveFound === null || score > bestScore) { bestScore = score; bestMoveFound = move; console.log(`    New best score at root: ${bestScore}`); } else if (score === bestScore && Math.random() < 0.3) { console.log(`    Equal score (${score}) at root, considering switch.`); bestMoveFound = move; } } console.log(`Minimax decision: Best Score = ${bestScore}`); if (!bestMoveFound && validMoves.length > 0) { console.warn("No move improved score, returning first valid move."); bestMoveFound = validMoves[0]; } else if (!bestMoveFound) { console.error("AI Critical Error: No best move found!"); } console.log("findBestMoveMinimax returning:", bestMoveFound ? `(${bestMoveFound.fromRow},${bestMoveFound.fromCol})->...[${bestMoveFound.captureCount}]` : null); return bestMoveFound; }
         function minimaxRecursive(boardState, depth, alpha, beta, isMaximizingPlayer) { /* ... unchanged ... */ const player = isMaximizingPlayer ? AI_PLAYER : HUMAN_PLAYER; if (isGameOverState(boardState, player)) { return evaluateBoard(boardState); } if (depth === 0) { return evaluateBoard(boardState); } const { availableMoves } = calculateValidMovesForPlayer(player, boardState); if (availableMoves.length === 0) { return isMaximizingPlayer ? (-100000 - depth) : (100000 + depth); } if (isMaximizingPlayer) { let maxEval = -Infinity; for (const move of availableMoves) { let boardAfterMove = simulateSequence(boardState, move); const evaluation = minimaxRecursive(boardAfterMove, depth - 1, alpha, beta, false); maxEval = Math.max(maxEval, evaluation); alpha = Math.max(alpha, evaluation); if (beta <= alpha) break; } return maxEval; } else { let minEval = Infinity; for (const move of availableMoves) { let boardAfterMove = simulateSequence(boardState, move); const evaluation = minimaxRecursive(boardAfterMove, depth - 1, alpha, beta, true); minEval = Math.min(minEval, evaluation); beta = Math.min(beta, evaluation); if (beta <= alpha) break; } return minEval; } }
         function simulateSequence(boardState, move) { /* ... unchanged ... */ let boardAfterMove = boardState.map(r => [...r]); let tempCurrentRow = move.fromRow; let tempCurrentCol = move.fromCol; for(const step of move.sequence) { const simDetails = { fromRow: tempCurrentRow, fromCol: tempCurrentCol, ...step, isCapture: move.captureCount > 0 }; boardAfterMove = simulateMove(boardAfterMove, simDetails); tempCurrentRow = step.toRow; tempCurrentCol = step.toCol; } const finalPieceType = boardAfterMove[tempCurrentRow][tempCurrentCol]; if (finalPieceType !== EMPTY && !isKing(finalPieceType)) { const player = getPlayer(finalPieceType); let pieceCount = 0; for(let r=0; r<BOARD_SIZE; r++) for(let c=0; c<BOARD_SIZE; c++) if(getPlayer(boardAfterMove[r][c]) === player) pieceCount++; if (pieceCount === 1) { boardAfterMove[tempCurrentRow][tempCurrentCol] = (player === 1) ? P1_KING : P2_KING; } } return boardAfterMove; }
@@ -604,6 +502,3 @@
 
 </body>
 </html>
-```
-
-يمكنك الآن الضغط على زر "Preview" لتجربة اللعبة واختبار جلب الرصيد باستخدام العنوان الجديد. لا تنسَ التحقق من الـ Console لملاحظة النتا
