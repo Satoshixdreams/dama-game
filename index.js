@@ -99,6 +99,10 @@ app.get('/farcaster.json', (req, res) => {
 })
 
 app.get('/.well-known/farcaster.json', (req, res) => {
+  const hosted = process.env.HOSTED_MANIFEST_URL
+  if (hosted && hosted.startsWith('http')) {
+    return res.redirect(307, hosted)
+  }
   const ROOT_URL = process.env.ROOT_URL || `http://localhost:${process.env.PORT || 3001}`
   const config = {
     accountAssociation: {
