@@ -111,18 +111,18 @@ app.get('/miniapp.json', (req, res) => {
       subtitle: "Turkish Draughts",
       description: "Play Turkish Draughts with AI or PvP",
       screenshotUrls: [`${ROOT_URL}/screenshot-portrait.svg`],
-      iconUrl: `${ROOT_URL}/icon.png`,
-      splashImageUrl: `${ROOT_URL}/splash.png`,
+      iconUrl: process.env.ICON_URL || `${ROOT_URL}/icon.png`,
+      splashImageUrl: process.env.SPLASH_URL || `${ROOT_URL}/splash.png`,
       splashBackgroundColor: "#000000",
       homeUrl: `${ROOT_URL}/game`,
       webhookUrl: `${ROOT_URL}/api/webhook`,
       primaryCategory: "games",
       tags: ["draughts", "checkers", "board", "ai"],
-      heroImageUrl: `${ROOT_URL}/image.png`,
+      heroImageUrl: process.env.HERO_URL || `${ROOT_URL}/image.png`,
       tagline: "Play and strategize",
       ogTitle: "Dama – Turkish Draughts",
       ogDescription: "Classic Turkish Draughts with AI",
-      ogImageUrl: `${ROOT_URL}/image.png`,
+      ogImageUrl: process.env.OG_IMAGE_URL || `${ROOT_URL}/image.png`,
       noindex: true
     }
   }
@@ -143,8 +143,8 @@ app.get('/farcaster.json', (req, res) => {
       version: "1",
       name: "Dama",
       homeUrl: `${ROOT_URL}/game`,
-      iconUrl: `${ROOT_URL}/icon.png`,
-      splashImageUrl: `${ROOT_URL}/splash.png`,
+      iconUrl: process.env.ICON_URL || `${ROOT_URL}/icon.png`,
+      splashImageUrl: process.env.SPLASH_URL || `${ROOT_URL}/splash.png`,
       splashBackgroundColor: "#000000",
       webhookUrl: `${ROOT_URL}/api/webhook`,
       subtitle: "Turkish Draughts",
@@ -152,11 +152,11 @@ app.get('/farcaster.json', (req, res) => {
       screenshotUrls: [`${ROOT_URL}/screenshot-portrait.svg`],
       primaryCategory: "games",
       tags: ["draughts", "checkers", "board", "ai"],
-      heroImageUrl: `${ROOT_URL}/image.png`,
+      heroImageUrl: process.env.HERO_URL || `${ROOT_URL}/image.png`,
       tagline: "Play and strategize",
       ogTitle: "Dama – Turkish Draughts",
       ogDescription: "Classic Turkish Draughts with AI",
-      ogImageUrl: `${ROOT_URL}/image.png`,
+      ogImageUrl: process.env.OG_IMAGE_URL || `${ROOT_URL}/image.png`,
       noindex: true
     }
   }
@@ -181,8 +181,8 @@ app.get('/.well-known/farcaster.json', (req, res) => {
       version: "1",
       name: "Dama",
       homeUrl: `${ROOT_URL}/game`,
-      iconUrl: `${ROOT_URL}/icon.png`,
-      splashImageUrl: `${ROOT_URL}/splash.png`,
+      iconUrl: process.env.ICON_URL || `${ROOT_URL}/icon.png`,
+      splashImageUrl: process.env.SPLASH_URL || `${ROOT_URL}/splash.png`,
       splashBackgroundColor: "#000000",
       webhookUrl: `${ROOT_URL}/api/webhook`,
       subtitle: "Turkish Draughts",
@@ -190,11 +190,11 @@ app.get('/.well-known/farcaster.json', (req, res) => {
       screenshotUrls: [`${ROOT_URL}/screenshot-portrait.svg`],
       primaryCategory: "games",
       tags: ["draughts", "checkers", "board", "ai"],
-      heroImageUrl: `${ROOT_URL}/image.png`,
+      heroImageUrl: process.env.HERO_URL || `${ROOT_URL}/image.png`,
       tagline: "Play and strategize",
       ogTitle: "Dama – Turkish Draughts",
       ogDescription: "Classic Turkish Draughts with AI",
-      ogImageUrl: `${ROOT_URL}/image.png`,
+      ogImageUrl: process.env.OG_IMAGE_URL || `${ROOT_URL}/image.png`,
       noindex: true
     }
   }
